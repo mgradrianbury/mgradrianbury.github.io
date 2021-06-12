@@ -1,0 +1,101 @@
+\chapter{Wybór technologii oraz narzędzi}
+
+
+\section{Wykrywanie twarzy na zdjęciu}
+
+Wykrywanie twarzy to pierwszy krok w zaprojektowanym systemie.
+Z powodu, że jest on umieszczony na samym początku, proces ten musi być maksymalnie skuteczny.
+Jeżeli na zdjęciu nie zostanie wykryta twarz, to cały proces zakończy się z negatywnym rezultatem.
+\textbf{Twarzy nie będzie można zidentyfikować, jeżeli nie zostanie ona znaleziona.}
+Oznacza to, że twarze muszą być wykrywane z różnymi orientacjami, kątami,
+poziomem oświetlenia, makijażem, kapeluszami, zarostem, fryzurami, okularami, wiekiem i tak dalej.
+Niestety twarz ludzka jest obiektem dynamicznym i ma duży stopień zmienności w wyglądzie,
+co sprawia, że wykrywanie twarzy jest trudnym problemem w widzeniu komputerowym~\cite{HJELMAS2001236}.
+
+W artykule z 2016 roku zatytułowanym
+``Joint Face Detection and Alignment Using Multitask Cascaded Convolutional Networks''~\cite{zhang2016joint}
+została zaproponowana wielozadaniowa kaskadowa konwolucyjna sieć neuronowa
+(MTCNN\footnote{Skrót z języka angielskiego od Multi-Task Cascaded Convolutional Neural Networks })
+do wykrywania twarzy.
+Sieć ta zyskała duża popularność, ponieważ osiągnęła wówczas najlepszy wyniki
+w wykrywaniu twarzy na zdjęciach dla wybranych zbiorów danych.
+Kolejną zaletą zaproponowanej sieci neuronowej jest to, że jest w stanie rozpoznać punkty orientacyjne twarzy, takie jak oczy, usta i nos.
+Wyniki przeprowadzonych eksperymentów w artykule zostały przedstawione na rysunku~\ref{fig:mtcnn_wyniki}.
+
+\begin{figure}[P]
+    \centering
+    \includegraphics[width=1\textwidth]{images/mtcnn-wyniki}
+    \caption{
+        Wyniki przeprowadzonych eksperymentów. Słowo ``Ours'' oznacza sieć MTCNN.
+        (a) wyniki z testów na bazie FDDB.
+        (b-d) wyniki z testów dla trzech kolejnych zbiorów na bazy Wider Face.
+        (e) Wyniki z testów dla wyrównania twarzy na bazie AFLW.
+    }
+    \bibsource{\cite{zhang2016joint}}
+    \label{fig:mtcnn_wyniki}
+\end{figure}
+
+
+W internecie znajduje się spora liczba implementacji MTCNN~\cite{mtznn_all_impls}.
+Spośród dostępnych została wybrana sieć napisana przez \textit{Iván de Paz Centeno}
+i udostępniona na portalu GitHub\footnote{GitHub - dostawcą platformy internetowej do tworzenia
+oprogramowania i kontroli wersji za pomocą narzędzia Git udostępniania
+pod adresem \url{https://github.com}. } (\url{https://github.com/ipazc/mtcnn}) na zasadach licencji MIT\footnote{Licencja MIT daje użytkownikom
+nieograniczone prawo do używania, kopiowania, modyfikowania i rozpowszechniania (w tym sprzedaży)
+    oryginalnego lub zmodyfikowanego programu w postaci binarnej lub źródłowej.
+    Jedynym wymaganiem jest, by we wszystkich wersjach zachowano warunki licencyjne i informacje o autorze.
+}~\cite{ipazc/mtcnn}.
+Główną zaletą wybranego narzędzia jest łatwość użycia.
+Sieć została napisana w języku programowania python w bibliotece TensorFlow
+i całość udostępniona jako pakiet z możliwością instalacji
+przez PIP\footnote{PIP - narzędzie do instalowania pakietów python}.
+
+
+\section{FaceNet}
+
+FaceNet to architektura sieci, oparta na głębokiej sieci neuronowej, który bezpośrednio uczy się mapowania
+z obrazów twarzy do zwartej przestrzeni euklidesowej,
+w której odległości bezpośrednio odpowiadają mierze podobieństwa twarzy~\cite{schroff2015facenet}.
+Wynikiem działania sieci jest wektor składający się z elementów charakteryzujący daną twarz.
+Długość wektora jest zależna od konkretnej implementacji.
+Po utworzeniu przestrzeni euklidesowej na bazie dostępnych zdjęć twarzy,
+zadania polegające na identyfikacji, weryfikacji czy grupowaniu
+sprowadzają się do pomiaru odległości pomiędzy poszczególnymi wektorami cech~\cite{schroff2015facenet}.
+
+W projektowanym systemie zostanie użyty wstępnie wytrenowany model \textit{Keras FaceNet}~\cite{taniai-2018},
+który został wyszkolony na bazie zdjęć dostarczonych przez MS-Celeb-1M~\cite{microsoft-2020-celeb1m}
+i udostępniony przez \textit{Hiroki Taniai}~\cite{taniai-no-date}.
+Dostarczane zdjęcia twarzy powinny być kolorowe, w formacie RGB oraz
+o rozmiarach 160 pikseli na 160 pikseli~\cite{brownlee-2019}.
+
+\subsection{Architektura}
+
+Test
+
+
+\section{Kadrowanie i standaryzacja}
+
+Do przetwarzania plików graficznych zostanie wykorzystana biblioteka \textit{PILLOW} napisana w języku python.
+Biblioteka wspiera wiele formatów graficznych,
+w tym te najpopularniejsze jak \textit{PNG}, \textit{GIF}, \textit{JPEG} oraz \textif{BMP}~\cite{pillow_doc},
+dzięki czemu nie będzie wymagane, aby użytkownik sam konwertował plików graficznych do odpowiedniego formatu.
+Biblioteka \textit{PILLOW} zostanie również wykorzystana do wycinania zdjęcia twarzy oraz standaryzacji
+i normalizacji już wykadrowanego zdjęcia.
+
+
+\section{Obsługa systemu}
+
+Całość zaprojektowanego systemu ma być dostępna z przeglądarki internetowej.
+Aby sprostać temu wymaganiu, należy napisać usługę, która jest w stanie obsługiwać połączenia
+HTTP\footnote{Skrót z języka angielskiego od słów Hypertext Transfer Protocol}.
+Z powodu, że narzędzia do wykrywania twarzy, obróbki zdjęć oraz FaceNet są udostępnione w języku python,
+program zostanie również napisany w tym języku.
+Oprócz samej strony internetowej potrzebna jest również baza danych,
+w której będą przechowywane informacje o dostępnych zdjęciach.
+Same zdjęcia będą przechowywane na serwerze plików.
+Sporym ułatwieniem będzie również panel umożliwiający zarządzanie dostępnymi zdjęciami w systemie.
+
+Narzędziem, które spełni wyżej postawione wymagania jest platforma programistyczna \textit{Django},
+która umożliwia w łatwy sposób zarządzanie bazą danych za pomocą mapowania obiektowo-relacyjnego,
+pozwala na zarządzanie danymi dostępnymi w bazie danych poprzez panel administratora, dostępny
+z poziomu przeglądarki oraz, co najważniejsze, jest napisana w języku python~\cite{djangodoc}.

@@ -2,12 +2,20 @@
 \usepackage{booktabs}
 \usepackage{blindtext}
 \usepackage{lipsum}
+\usepackage{siunitx}
 \include{styles/packages}
 \addbibresource{bibliografia.bib}
 
 \newcommand{\source}[1]{Źródło: \url{#1}}
-\newcommand{\customsource}{{Źródło własne}}
+\newcommand{\customsource}[1][]{{Źródło własne #1}}
 \newcommand{\bibsource}[1]{{Źródło: #1}}
+
+\newcommand{\includegraphicswithborder}[2][]{%
+    \includegraphics[
+        width=\dimexpr\textwidth-2\fboxrule,
+        frame={\fboxrule},
+        #1]{#2}%
+}
 
 \begin{document}
 
@@ -20,7 +28,7 @@
     \include{rozdzialy/4.koncepcja_dzialania_systemu}
     \include{rozdzialy/5.wybor_technologii_oraz_narzedzi}
     \include{rozdzialy/6.implementacja_systemu}
-    \include{rozdzialy/7.walidator}
+    \include{rozdzialy/7.testowanie}
     \include{rozdzialy/8.zakonczenie}
 
     \printbibliography[

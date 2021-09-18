@@ -19,7 +19,8 @@ została zaproponowana wielozadaniowa kaskadowa konwolucyjna sieć neuronowa
 do wykrywania twarzy.
 Sieć ta zyskała duża popularność, ponieważ osiągnęła wówczas najlepszy wyniki
 w wykrywaniu twarzy na zdjęciach dla wybranych zbiorów danych.
-Kolejną zaletą zaproponowanej sieci neuronowej jest to, że jest w stanie rozpoznać punkty orientacyjne twarzy, takie jak oczy, usta i nos.
+Kolejną zaletą zaproponowanej sieci neuronowej jest to, że jest w stanie
+rozpoznać punkty orientacyjne twarzy, takie jak oczy, usta i nos.
 Wyniki przeprowadzonych eksperymentów w artykule zostały przedstawione na rysunku~\ref{fig:mtcnn_wyniki}.
 
 \begin{figure}[P]
@@ -45,7 +46,7 @@ nieograniczone prawo do używania, kopiowania, modyfikowania i rozpowszechniania
     oryginalnego lub zmodyfikowanego programu w postaci binarnej lub źródłowej.
     Jedynym wymaganiem jest, by we wszystkich wersjach zachowano warunki licencyjne i informacje o autorze.
 }~\cite{ipazc/mtcnn}.
-Główną zaletą wybranego narzędzia jest łatwość użycia.
+Główną zaletą wybranej implementacji jest łatwość użycia.
 Sieć została napisana w języku programowania python w bibliotece TensorFlow
 i całość udostępniona jako pakiet z możliwością instalacji
 przez PIP\footnote{PIP - narzędzie do instalowania pakietów python}.
@@ -85,10 +86,10 @@ na temat danej rzeczy (w tym wypadku zdjęcia twarzy) bez utraty kluczowych info
 Informacje, jakie są pobierane ze zdjęcia, nie są z góry zdefiniowane.
 Za odpowiedni dobór parametrów jest odpowiedzialna głęboka sieć neuronowa, która traktowana jest
 jako czarna skrzynka, czyli miejsce, gdzie znane są tylko dane wejściowe oraz dane wyjściowe.
-Oznacza to, że nie są znane parametry, które są pobierane ze zdjęcia, a wartości w wektorze cech,
-generowane na wyjściu, są trudne, o ile w ogóle możliwe, do zinterpretowania.
+Oznacza to, że nie są znane parametry, które są pobierane ze zdjęcia,
+a wartości w wektorze cech generowane na wyjściu są trudne, o ile w ogóle możliwe do zinterpretowania.
 
-Oprócz samej sieci neuronowej FaceNet składa się również z innych warstw, normalizacji L2 oraz
+Oprócz samej sieci neuronowej FaceNet składa się również z innych warstw: normalizacji L2 oraz
 funkcji strat \textit{triplet loss} (rysunek~\ref{fig:facenet_arch}).
 Normalizacja L2 polega na takim zmodyfikowaniu wartości otrzymanego zbioru, aby w każdym wierszu
 suma kwadratów była zawsze równa $1$,
@@ -97,8 +98,26 @@ minimalizowanie odległości pomiędzy prawdziwymi
 wyrażeniami oraz maksymalizowanie dla fałszywych~\cite{chechik2010large}.
 Innymi słowy, celem jest, aby odległości między wektorami tych samych osób były jak najmniejsze,
 a odległości pomiędzy wektorami różnych osób --- maksymalne.
-Zasada działania funkcji \textit{triplet loss} w sposób graficzny
-została przedstawiona na rysunku~\ref{fig:triplet_loss}.
+Wzór matematyczny został przedstawiony równaniem~\ref{eq:triplet_loss},
+natomiast zasada działania w sposób graficzny przedstawiona na rysunku~\ref{fig:triplet_loss}.
+
+
+\begin{equation}
+    L = \sum_{i}^{N} [  \| f(x_i^a) - f(x_i^p) \| ^2_2 - \| f(x_i^a) - f(x_i^n) \| ^2_2 + \alpha ] _+
+    \label{eq:triplet_loss}
+\end{equation}
+
+gdzie:
+
+$x_i^a$ - wektor zdjęcia wzorcowego
+
+$x_i^p$ - wektor zdjęcia ``prawdziwego'' względem wzorca
+
+$x_i^n$ - wektor zdjęcia ``fałszywego'' względem wzorca
+
+$\alpha$ - margines odległości pomiędzy wektorami
+
+\pagebreak
 
 \begin{figure}[]
     \centering
@@ -116,7 +135,8 @@ została przedstawiona na rysunku~\ref{fig:triplet_loss}.
     \label{fig:triplet_loss}
 \end{figure}
 
-Całość procesu uczenia się sieci FaceNet, można zatem w uproszczeniu, podsumować w następujących krokach:
+
+Całość procesu uczenia się sieci FaceNet, można w uproszczeniu podsumować w następujących krokach:
 
 \begin{enumerate}
     \item zdefiniowanie parametrów początkowych sieci,
@@ -169,7 +189,7 @@ trafność sieci zostały przedstawione w tabeli~\ref{tab:quality_pixels_to_rate
 
 \subsection{Użycie wytrenowanej sieci}
 
-W projektowanym systemie zostanie użyty wstępnie wytrenowany model \textit{Keras FaceNet}~\cite{taniai-2018},
+W projektowanym systemie zostanie użyty wytrenowany model \textit{Keras FaceNet}~\cite{taniai-2018},
 który został wyszkolony na bazie zdjęć dostarczonych przez MS-Celeb-1M~\cite{microsoft-2020-celeb1m}
 i udostępniony przez \textit{Hiroki Taniai}~\cite{taniai-no-date}.
 Dostarczane zdjęcia twarzy powinny być kolorowe, w formacie RGB oraz
@@ -184,6 +204,200 @@ w tym te najpopularniejsze jak \textit{PNG}, \textit{GIF}, \textit{JPEG} oraz \t
 dzięki czemu nie będzie wymagane, aby użytkownik sam konwertował plików graficznych do odpowiedniego formatu.
 Biblioteka \textit{PILLOW} zostanie również wykorzystana do wycinania zdjęcia twarzy oraz standaryzacji
 i normalizacji już wykadrowanego zdjęcia.
+
+
+\section{Klasyfikacja}
+
+Ostatnim krokiem w systemie jest dokonanie klasyfikacji wygenerowanego wektora cech,
+czyli określenie, do jakiej grupy należy wektor na podstawie próbek uczących.
+Innymi słowy, etap ten polega na zwróceniu informacji, do kogo najbardziej pasuje przesłane zdjęcie,
+opierając się na fotografiach dostępnych w systemie.
+
+Jednym z szeroko stosowanych algorytmów klasyfikacji jest
+\textbf{maszyna wektorów nośnych} (ang. support vector machine — SVM).
+Klasyfikator ten konstruuje hiperpłaszczyznę lub ich zbiór w przestrzeni wielowymiarowej,
+na podstawie otrzymanych próbek, która oddziela poszczególne klasy.
+Optymalizowanie modelu SVM polega na maksymalizacji marginesu pomiędzy płaszczyzną a poszczególnymi klasami,
+ponieważ na ogół nim większy margines, tym mniejszy jest błąd generalizacji~\cite{hastie2009elements}.
+Koncepcja klasyfikatora została zaprezentowana na rysunku~\ref{fig:svm}.
+
+
+\begin{figure}[]
+    \centering
+    \includegraphics[width=1\textwidth]{images/smv}
+    \caption{
+        Model maszyny wektorów nośnych.
+        Po lewej możliwe położenia hiperpłaszczyzny, po prawej zoptymalizowany model wraz z objaśnieniami.
+    }
+    \bibsource{\cite{raschka2017python}}
+    \label{fig:svm}
+\end{figure}
+
+Jeśli dane uczące są liniowo separowalne, to można wybrać dwie równoległe hiperpłaszczyzny,
+które oddzielają dwie klasy danych, tak aby odległość między nimi była maksymalna.
+Obszar ograniczony przez te dwie hiperpłaszczyzny nazywany jest ``marginesem'',
+a hiperpłaszczyzna maksymalnego marginesu to hiperpłaszczyzna leżąca w połowie odległości między nimi.
+Problem optymalizacji algorytmu został przedstawiony równaniem~\ref{eq:hard_margin}.
+Lewą stroną tego równania jest odległość pomiędzy hiperpłaszczyzną ``pozytywną'' a ``negatywną'',
+zatem, w celu maksymalizacji marginesu, należy zmaksymalizować $\frac{2}{||w||}$ lub
+minimalizować odwrotność wyrażenia, czyli $\frac{1}{2}||w||^2$.
+
+\begin{equation}
+    \begin{aligned}
+        & \frac{ w^T (x_{poz} - x_{neg}) }{ ||w|| } = \frac{2}{||w||} \\
+        \text{gdzie:} \\
+        w & \text{ - wektor normalny do granicy decyzyjności}
+        \\
+        x_{poz} & \text{ - ``pozytywny'' wektor nośny}
+        \\
+        x_{neg} & \text{ - ``negatywny'' wektor nośny}
+    \end{aligned}
+    \label{eq:hard_margin}
+\end{equation}
+\bigskip
+
+W przypadku danych liniowo separowalnych równanie~\ref{eq:hard_margin} musi
+spełniać warunki przedstawione w równaniu~\ref{eq:hard_margin_class}.
+Równania te oznaczają, że wszystkie negatywne próbki powinny wylądować po stronie
+negatywnej hiperpłaszczyzny, a wszystkie próbki pozytywne po stronie hiperpłaszczyzny pozytywnej.
+
+\begin{equation}
+    \begin{aligned}
+        w_0 +w^{T}x^{(i)} &\geq 1 && \text{ jeśli } y^{(i)} =1
+        \\
+        w_0 +w^{T}x^{(i)} &\leq -1 && \text{ jeśli } y^{(i)} =-1
+        \\
+        \text{dla } i&= 1\dots N
+        \\
+        \text{ gdzie: } \\
+        N & \text{  - liczba próbek}
+        \\
+        w_0 +w^{T}x^{(i)} & \text{  - odległość od granicy decyzyjności}
+    \end{aligned}
+    \label{eq:hard_margin_class}
+\end{equation}
+
+\bigskip
+
+W przypadku, gdy dane nie są liniowo separowalne (rysunek~\ref{fig:sofm_margin}) wprowadza się dodatkową zmienną $\xi$.
+Motywacją wprowadzenia tej zmiennej jest potrzeba ``uelastycznienia'' liniowych
+ograniczeń (równanie~\ref{eq:hard_margin_class}) podczas analizowania nieliniowo rozdzielnych danych,
+co pozwala na uzyskanie zbieżności algorytmu uczącego w obecności nieprawidłowych klasyfikacji
+podczas stosowania odpowiedniej funkcji strat.
+
+\begin{figure}[]
+    \centering
+    \includegraphics[width=0.3\textwidth]{images/soft-margin.drawio}
+    \caption{ Przykład nieliniowo rozdzielnych próbek}
+    \customsource
+    \label{fig:sofm_margin}
+\end{figure}
+
+Po wprowadzeniu zmiennej $\xi$ do równiania~\ref{eq:hard_margin_class},
+równanie to przybiera postać opisaną wzorami~\ref{eq:soft_margin}.
+
+\begin{equation}
+    \begin{aligned}
+        w_0 +w^{T}x^{(i)} &\geq 1 - \xi^{(i)} && \text{ jeśli } y^{(i)} =1
+        \\
+        w_0 +w^{T}x^{(i)} &\leq -1 + \xi^{(i)} && \text{ jeśli } y^{(i)} =-1
+        \\
+        \text{dla } i&= 1\dots N \\
+        \text{gdzie:} \\
+        \xi & \text{ - wartość przesunięcia granicy przynależności}
+    \end{aligned}
+    \label{eq:soft_margin}
+\end{equation}
+
+Nowym celem optymalizacji staje wtedy się równanie~\ref{eq:hard_svm_min_problem}.
+Za pomocą zmiennej $C$ kontroluje się wagę kary za niewłaściwą klasyfikację.
+Duża wartość parametru $C$ odpowiada wysokim karom za błędy, z kolei przy niskich wartościach
+kara nie będzie mocno wpływać na szerokość marginesu.
+Dzięki temu parametrowi jest się w stanie regulować kompromis pomiędzy
+obciążeniem a wariancją~\cite{raschka2017python} (rysunek~\ref{fig:wplyw_c_na_svm}).
+
+\begin{equation}
+    \begin{aligned}
+        &\frac{1}{2}||w||^2 + C (\sum_{i}^{N} \xi^{(i)})\\
+        \text{gdzie:} \\
+        &C \text{ - mnożnik kary za złą klasyfikację}
+    \end{aligned}
+    \label{eq:hard_svm_min_problem}
+\end{equation}
+
+\begin{figure}[]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/wplyw_c_na_svm}
+    \caption{  Wpływ zmiennej C na szerokość marginesu }
+    \bibsource{\cite{raschka2017python}}
+    \label{fig:wplyw_c_na_svm}
+\end{figure}
+
+\bigskip
+
+W przypadku, gdy dostarczone dane nie są separowalne za pomocą hiperpłaszczyzny
+w $N$ wymiarach (rysunek~\ref{fig:dane_nie_separowalne_liniowo})
+wprowadza się dodatkowe wymiary za pomocą funkcji mapującej $\phi$.
+Dodatkowe wymiary wprowadza się tak długo, aż dane staną się liniowo separowalne.
+Przykładowo, w celu wyznaczenia granicy decyzyjności danych
+przedstawionych na rysunku~\ref{fig:dane_nie_separowalne_liniowo},
+funkcja mapująca, za pomocą której będzie możliwe wyznaczenie hiperpłaszczyzny,
+została przedstawiona równaniem~\ref{eq:przykladowy_kernel}.
+Rezultat mapowania danych z rysunku~\ref{fig:dane_nie_separowalne_liniowo} przez funkcję~\ref{eq:przykladowy_kernel}
+został przedstawiony na rysunku~\ref{fig:wyniki_mapowan}.
+Po wykonaniu mapowania oraz wyznaczeniu hiperpłaszczyzny dokonuje się rzutowania do pierwotnej przestrzeni cech ($\phi^{-1}$).
+
+\begin{equation}
+    \begin{aligned}
+        \phi(x_1, x_2) = (z_1, z_2, z_3) = (x_1, x_2, x_1^2 + x_2^2)
+    \end{aligned}
+    \label{eq:przykladowy_kernel}
+\end{equation}
+
+\begin{figure}[]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/dane_nie_separowalne_liniowo}
+    \caption{  Zestaw danych nie separowalnych liniowo }
+    \bibsource{\cite{raschka2017python}}
+    \label{fig:dane_nie_separowalne_liniowo}
+\end{figure}
+
+\begin{figure}[]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/wyniki_mapowan}
+    \caption{ Sposób wyznaczania nieliniowej granicy decyzyjności }
+    \bibsource{\cite{raschka2017python}}
+    \label{fig:wyniki_mapowan}
+\end{figure}
+
+\bigskip
+
+Wszystkie opisane wyżej przypadki dotyczą problemów binarnych,
+czyli takich gdzie dostarczona próbka należy do jednej z dwóch klas.
+W związku z tym, że SVM obsługuje tylko klasyfikację binarną, dlatego w przypadku
+gdy dana próbka może należeć do jeden z $N$ klas (klasyfikacja wieloklasowa)
+dokonuje się rozbicia jednego problemu klasyfikacji wieloklasowej na wiele problemów klasyfikacji binarnej.
+W tym celu stosuje się jedną z dwóch strategii - jeden kontra jeden (ang. one vs one --- OvO)
+lub jeden przeciwko wszystkim (ang. one vs all --- OvA).
+Obie te strategie zostały przedstawione na rysunku~\ref{fig:ovr} oraz~\ref{fig:ovo}.
+
+
+\begin{figure}[]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/ovr}
+    \caption{ Strategia jeden przeciwko wszystkim }
+    \customsource
+    \label{fig:ovr}
+\end{figure}
+
+\begin{figure}[]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/ovo}
+    \caption{ Strategia jeden kontra jeden }
+    \customsource
+    \label{fig:ovo}
+\end{figure}
+
 
 
 \section{Obsługa systemu}

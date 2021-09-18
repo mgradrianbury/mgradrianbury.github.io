@@ -1,0 +1,32 @@
+\chapter*{Podsumowanie}
+\addcontentsline{toc}{chapter}{Podsumowanie}
+
+Architektura FaceNet znakomicie sprawdza się do zadań związanych z rozpoznawaniem twarzy.
+
+Wektor cech, które jest generowane przez sieć FaceNet
+
+Policzona maksymalna odległość pomiędzy zdjęciami, która może wystąpić,
+aby porównywane zdjęcia twarzy były uznane za podobne to \num{10.2}.
+Przy takiej długości została osiągnięta maksymalna trafność samego walidatora.
+Pomyłka walidatora będzie oznaczać, że osoba, która w rzeczywistości nie znajduje się w obecnej bazie zdjęć,
+zostanie zakwalifikowana do następnego etapu i zostanie dokonana kwalifikacja (wynik fałszywie pozytywny).
+W przypadku, gdy system zostałby użyty w miejscu, gdzie taki błąd jest niedopuszczalny, należy zmniejszyć tę odległość.
+Spowoduje to, że ogólna trafność walidatora spadnie, natomiast częstotliwość występowania wyników fałszywie
+pozytywnych zostanie \textbf{najprawdopodobniej} ograniczona.
+
+Przygotowany panel administratora jest bardzo dużym ułatwieniem,
+które pozwala na łatwe zarządzanie zdjęciami, które znajdują się w systemie.
+Podgląd aktualnych lub dodawania kolejnych zdjęć ogranicza się tylko do paru kliknięć.
+Niestety manualne wysyłanie bardzo dużej liczby zdjęć za pomocą panelu będzie wymagać dużo czasu,
+dlatego w takim przypadku lepiej jest przygotować skrypt, który zaimportuje bezpośrednio zdjęcia z dysku do systemu.
+
+Udostępniona strona internetowa pozwala na komunikowanie się z serwerem
+z każdego urządzenia z internetem z zainstalowaną przeglądarką internetową.
+Jeżeli urządzenia posiada aparat to jest nawet możliwość bezpośredniego wysłania zdjęcia zaraz po jego wykonaniu.
+Takie rozwiązanie daje dużą swobodę w korzystaniu.
+
+
+Kolejnym tematem, który nie został poruszony, jest wydajność systemu przy bardzo dużej liczbie zdjęć.
+Podczas testów w systemie wgranych było 5000 zdjęć i przy takiej liczbie system odpowiadał szybko (poniżej 1 sekundy),
+natomiast nie zostało sprawdzone, co się stanie, gdy liczba ta wzrośnie 10 lub 100-krotnie.
+

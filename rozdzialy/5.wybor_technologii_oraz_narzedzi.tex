@@ -4,38 +4,20 @@
 \section{Wykrywanie twarzy na zdjęciu}
 
 Wykrywanie twarzy to pierwszy krok w zaprojektowanym systemie.
-Z powodu, że jest on umieszczony na samym początku, proces ten musi być maksymalnie skuteczny.
+Z powodu tego, że jest on umieszczony na samym początku, proces ten musi być maksymalnie skuteczny.
 Jeżeli na zdjęciu nie zostanie wykryta twarz, to cały proces zakończy się z negatywnym rezultatem.
 \textbf{Twarzy nie będzie można zidentyfikować, jeżeli nie zostanie ona znaleziona.}
-Oznacza to, że twarze muszą być wykrywane z różnymi orientacjami, kątami,
-poziomem oświetlenia, makijażem, kapeluszami, zarostem, fryzurami, okularami, wiekiem i tak dalej.
 Niestety twarz ludzka jest obiektem dynamicznym i ma duży stopień zmienności w wyglądzie,
 co sprawia, że wykrywanie twarzy jest trudnym problemem w widzeniu komputerowym~\cite{HJELMAS2001236}.
 
 W artykule z 2016 roku zatytułowanym
 ``Joint Face Detection and Alignment Using Multitask Cascaded Convolutional Networks''~\cite{zhang2016joint}
 została zaproponowana wielozadaniowa kaskadowa konwolucyjna sieć neuronowa
-(MTCNN\footnote{Skrót z języka angielskiego od Multi-Task Cascaded Convolutional Neural Networks })
-do wykrywania twarzy.
+(ang. Multi-Task Cascaded Convolutional Neural Networks - MTCNN) do wykrywania twarzy.
 Sieć ta zyskała duża popularność, ponieważ osiągnęła wówczas najlepszy wyniki
 w wykrywaniu twarzy na zdjęciach dla wybranych zbiorów danych.
 Kolejną zaletą zaproponowanej sieci neuronowej jest to, że jest w stanie
 rozpoznać punkty orientacyjne twarzy, takie jak oczy, usta i nos.
-Wyniki przeprowadzonych eksperymentów w artykule zostały przedstawione na rysunku~\ref{fig:mtcnn_wyniki}.
-
-\begin{figure}[P]
-    \centering
-    \includegraphics[width=1\textwidth]{images/mtcnn-wyniki}
-    \caption{
-        Wyniki przeprowadzonych eksperymentów. Słowo ``Ours'' oznacza sieć MTCNN.
-        (a) wyniki z testów na bazie FDDB.
-        (b-d) wyniki z testów dla trzech kolejnych zbiorów na bazy Wider Face.
-        (e) Wyniki z testów dla wyrównania twarzy na bazie AFLW.
-    }
-    \bibsource{\cite{zhang2016joint}}
-    \label{fig:mtcnn_wyniki}
-\end{figure}
-
 
 W internecie znajduje się spora liczba implementacji MTCNN~\cite{mtznn_all_impls}.
 Spośród dostępnych została wybrana sieć napisana przez \textit{Iván de Paz Centeno}
@@ -43,7 +25,7 @@ i udostępniona na portalu GitHub\footnote{GitHub - dostawcą platformy internet
 oprogramowania i kontroli wersji za pomocą narzędzia Git udostępniania
 pod adresem \url{https://github.com}. } (\url{https://github.com/ipazc/mtcnn}) na zasadach licencji MIT\footnote{Licencja MIT daje użytkownikom
 nieograniczone prawo do używania, kopiowania, modyfikowania i rozpowszechniania (w tym sprzedaży)
-    oryginalnego lub zmodyfikowanego programu w postaci binarnej lub źródłowej.
+    oryginalnego lub zmodyfikowanego programu.
     Jedynym wymaganiem jest, by we wszystkich wersjach zachowano warunki licencyjne i informacje o autorze.
 }~\cite{ipazc/mtcnn}.
 Główną zaletą wybranej implementacji jest łatwość użycia.
@@ -54,80 +36,70 @@ przez PIP\footnote{PIP - narzędzie do instalowania pakietów python}.
 
 \section{FaceNet}
 
-FaceNet to architektura, oparta na głębokiej sieci neuronowej, która bezpośrednio uczy się mapowania
-z obrazów twarzy do zwartej przestrzeni euklidesowej,
-w której odległości bezpośrednio odpowiadają mierze podobieństwa twarzy~\cite{schroff2015facenet}.
-Wynikiem działania sieci jest wektor składający się z elementów charakteryzujący daną twarz.
-Długość wektora jest zależna od konkretnej implementacji.
-Po utworzeniu przestrzeni euklidesowej na bazie dostępnych zdjęć twarzy,
-zadania polegające na identyfikacji, weryfikacji czy grupowaniu
+FaceNet to architektura oparta na głębokiej sieci neuronowej, która bezpośrednio uczy się mapowania
+z obrazów twarzy do n-wymiarowych wektorów, gdzie poszczególne wartości wektora charakteryzują daną twarz.
+Wymiarowość wektora jest zależna od konkretnej implementacji.
+W przestrzeni składającej się z wygenerowanych wektorów
+odległości pomiędzy wektorami, mierzone za pomocą metryki euklidesowej,
+bezpośrednio odpowiadają mierze podobieństwa twarzy.
+Oznacza to, że zadania polegające na identyfikacji, weryfikacji czy grupowaniu
 sprowadzają się do pomiaru odległości pomiędzy poszczególnymi wektorami cech~\cite{schroff2015facenet}.
 Wizualizacja procesu mapowania zdjęcia do przestrzeni
 euklidesowej została przedstawiona na rysunku~\ref{fig:facenet_zastosowanie}.
 
-\begin{figure}[]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{images/facenet_euc}
+    \includegraphics[width=.8\textwidth]{images/facenet_euc}
     \caption{
-        Proces umieszczania wektorów cech w przestrzeni euklidesowej.
-        Zdjęcia przedstawiające tę samą osobę znajdą się bliżej siebie względem zdjęć innych osób.
+        Wizualizacja przestrzeni składającej się z wygenerowanych wektorów.
+        Odległości mierzone metryką euklidesową pomiędzy wektorami reprezentującymi te
+        same osoby są mniejsze względem wektorów reprezentujących inne osoby.
         Literą ``A'' zostały oznaczone zdjęcia przedstawiające tę samą osobę.
     }
     \customsource
     \label{fig:facenet_zastosowanie}
 \end{figure}
 
+\pagebreak
+
 \subsection{Zasada działania}
 
-FaceNet pobiera obraz twarzy osoby jako dane wejściowe i wyprowadza wektor,
-który reprezentuje najważniejsze cechy twarzy (wektor cech).
-Operacje ta, jest pewnego rodzaju kompresją, której zadaniem jest zmniejszenie ilości informacji
-na temat danej rzeczy (w tym wypadku zdjęcia twarzy) bez utraty kluczowych informacji.
-Informacje, jakie są pobierane ze zdjęcia, nie są z góry zdefiniowane.
-Za odpowiedni dobór parametrów jest odpowiedzialna głęboka sieć neuronowa, która traktowana jest
-jako czarna skrzynka, czyli miejsce, gdzie znane są tylko dane wejściowe oraz dane wyjściowe.
-Oznacza to, że nie są znane parametry, które są pobierane ze zdjęcia,
-a wartości w wektorze cech generowane na wyjściu są trudne, o ile w ogóle możliwe do zinterpretowania.
 
-Oprócz samej sieci neuronowej FaceNet składa się również z innych warstw: normalizacji L2 oraz
-funkcji strat \textit{triplet loss} (rysunek~\ref{fig:facenet_arch}).
-Normalizacja L2 polega na takim zmodyfikowaniu wartości otrzymanego zbioru, aby w każdym wierszu
-suma kwadratów była zawsze równa $1$,
-natomiast zadaniem funkcji \textit{triplet loss} jest, w procesie trenowania sieci,
-minimalizowanie odległości pomiędzy prawdziwymi
+Po dostarczeniu danego zdjęcia do sieci następuje wieloetapowa filtracja przy użyciu filtrów splotowych,
+aby wydobyć z obrazu na wejściu wyróżniające się cechy (ang. convolution layer)
+oraz wykorzystywane są operatory łączenia w celu zredukowania wymiaru danych (ang. pooling layer).
+Operacje te są pewnego rodzaju kompresją, której zadaniem jest zmniejszenie ilości informacji
+na temat danej rzeczy (w tym wypadku zdjęcia twarzy) bez utraty kluczowych informacji.
+Jako wynik działania sieci otrzymywany jest wektor,
+który przechowuje skompresowane informacje na temat dostarczonego zdjęcia.
+Informacje jaką są w nim przechowywane są trudne, o ile w ogóle możliwe do zinterpretowania.
+
+\subsection{Trenowanie sieci}
+
+W celu wytrenowania sieci, aby generowany wektor dokładnie odwzorowywał dostarczone zdjęcie,
+wykorzystywana jest funkcja strat \textit{triplet loss}.
+Jej zadaniem jest minimalizowanie odległości pomiędzy prawdziwymi
 wyrażeniami oraz maksymalizowanie dla fałszywych~\cite{chechik2010large}.
-Innymi słowy, celem jest, aby odległości między wektorami tych samych osób były jak najmniejsze,
+Innymi słowy, celem jest, aby odległości między wektorami cech tych samych osób były jak najmniejsze,
 a odległości pomiędzy wektorami różnych osób --- maksymalne.
-Wzór matematyczny został przedstawiony równaniem~\ref{eq:triplet_loss},
+Wzór matematyczny opisujący funkcję \textit{triplet loss} został przedstawiony
+równaniem~\ref{eq:triplet_loss}~\cite{schroff2015facenet},
 natomiast zasada działania w sposób graficzny przedstawiona na rysunku~\ref{fig:triplet_loss}.
 
 
 \begin{equation}
-    L = \sum_{i}^{N} [  \| f(x_i^a) - f(x_i^p) \| ^2_2 - \| f(x_i^a) - f(x_i^n) \| ^2_2 + \alpha ] _+
+    \begin{aligned}
+        &L = \sum_{i}^{N} [  \| f(x_i^a) - f(x_i^p) \| ^2_2 - \| f(x_i^a) - f(x_i^n) \| ^2_2 + \alpha ] _+ \\
+        \text{gdzie} & \\
+        x_i^a & \text{ - wektor zdjęcia wzorcowego}\\
+        x_i^p & \text{ - wektor zdjęcia ``prawdziwego'' względem wzorca}\\
+        x_i^n & \text{ - wektor zdjęcia ``fałszywego'' względem wzorca}\\
+        \alpha & \text{ - margines odległości pomiędzy wektorami} \\
+    \end{aligned}
     \label{eq:triplet_loss}
 \end{equation}
 
-gdzie:
-
-$x_i^a$ - wektor zdjęcia wzorcowego
-
-$x_i^p$ - wektor zdjęcia ``prawdziwego'' względem wzorca
-
-$x_i^n$ - wektor zdjęcia ``fałszywego'' względem wzorca
-
-$\alpha$ - margines odległości pomiędzy wektorami
-
-\pagebreak
-
-\begin{figure}[]
-    \centering
-    \includegraphics[width=1\textwidth]{images/facenet_arch}
-    \caption{ Architektura FaceNet z podziałem na poszczególne warstwy }
-    \customsource
-    \label{fig:facenet_arch}
-\end{figure}
-
-\begin{figure}[]
+\begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{images/triplet_loss}
     \caption{ Uproszczony schemat obrazujący zasadę działania funkcji strat \textit{triplet loss} }
@@ -135,7 +107,7 @@ $\alpha$ - margines odległości pomiędzy wektorami
     \label{fig:triplet_loss}
 \end{figure}
 
-
+Poszczególne etapy trenowania sieci o architekturze FaceNet zostały przedstawione na rysunku~\ref{fig:facenet_arch}.
 Całość procesu uczenia się sieci FaceNet, można w uproszczeniu podsumować w następujących krokach:
 
 \begin{enumerate}
@@ -143,8 +115,19 @@ Całość procesu uczenia się sieci FaceNet, można w uproszczeniu podsumować 
     \item wygenerowanie wektorów cech twarzy,
     \item użycie funkcji strat \textit{triplet loss},
     \item dostosowanie się parametrów sieci tak, aby przykład pozytywny był bliżej zdjęcia wzorcowego, niż przykład negatywny,
-    \item powrót do kroku drugiego tak długo, aż zwracane wektory osiągną zadaną dokładność
+    \item powrót do kroku drugiego tak długo, aż zwracane wektory osiągną zadaną dokładność.
 \end{enumerate}
+
+\bigskip
+\bigskip
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{images/facenet_arch}
+    \caption{ Proces uczenia się sieci o architekturze FaceNet z podziałem na poszczególne etapy }
+    \customsource
+    \label{fig:facenet_arch}
+\end{figure}
 
 \subsection{Wpływ wielkości zdjęcia na działanie sieci}
 
@@ -155,34 +138,37 @@ zdjęć, na których sieć była trenowana) okazało się, że sieć ta jest ró
 Sieć miała akceptowalną skuteczność nawet po dostarczeniu zdjęć o rozmiarach 80 na 80 pikseli.
 Trenowanie sieci na zdjęciach o mniejszej rozdzielczości mogłoby jeszcze poprawić ten wynik.
 Dokładne informacje na temat wpływu liczby pikseli na
-trafność sieci zostały przedstawione w tabeli~\ref{tab:quality_pixels_to_rate}
+skuteczność sieci zostały przedstawione w tabeli~\ref{tab:quality_pixels_to_rate}
 
-\begin{table}[]
-    \caption{Wpływ jakości zdjęcia oraz liczby pikseli na trafność sieci FaceNet. Źródło: \cite{schroff2015facenet}}
+\begin{table}[H]
+    \caption{
+        Wpływ jakości zdjęcia oraz liczby pikseli na skuteczność sieci FaceNet.
+        Źródło: \cite{schroff2015facenet}
+    }
     \label{tab:quality_pixels_to_rate}
     \begin{minipage}{.5\linewidth}
         \centering
         \begin{tabular}{|l|l|}
             \hline
-            Liczba pikseli                & Trafność \\ \hline
-            1 600 \hspace{15px} (40x40)   & 37.8\%   \\ \hline
-            6 400 \hspace{15px}     (80x80)    & 79.5\%   \\ \hline
-            14 400 \hspace{10px}  (120x120) & 84.5\%   \\ \hline
-            25 600 \hspace{10px}  (160x160) & 85.7\%   \\ \hline
-            65 536 \hspace{10px}  (256x256) & 86.4\%   \\ \hline
+            Liczba pikseli                & Skuteczność \\ \hline
+            1 600 \hspace{15px} (40x40)   & 37.8\%                \\ \hline
+            6 400 \hspace{15px}     (80x80)    & 79.5\%                \\ \hline
+            14 400 \hspace{10px}  (120x120) & 84.5\%                \\ \hline
+            25 600 \hspace{10px}  (160x160) & 85.7\%                \\ \hline
+            65 536 \hspace{10px}  (256x256) & 86.4\%                \\ \hline
         \end{tabular}
     \end{minipage}%
     \begin{minipage}{.5\linewidth}
         \centering
         \begin{tabular}{|l|l|}
             \hline
-            Jakość JPEG & Trafność \\ \hline
-            10          & 67.3\%   \\ \hline
-            20          & 81.4\%   \\ \hline
-            30          & 83.9\%   \\ \hline
-            50          & 85.5\%   \\ \hline
-            70          & 86.1\%   \\ \hline
-            90          & 86.5\%   \\ \hline
+            Jakość JPEG & Skuteczność \\ \hline
+            10          & 67.3\%      \\ \hline
+            20          & 81.4\%      \\ \hline
+            30          & 83.9\%      \\ \hline
+            50          & 85.5\%      \\ \hline
+            70          & 86.1\%      \\ \hline
+            90          & 86.5\%      \\ \hline
         \end{tabular}
     \end{minipage}
 \end{table}
@@ -202,11 +188,12 @@ Do przetwarzania plików graficznych zostanie wykorzystana biblioteka \textit{PI
 Biblioteka wspiera wiele formatów graficznych,
 w tym te najpopularniejsze jak \textit{PNG}, \textit{GIF}, \textit{JPEG} oraz \textif{BMP}~\cite{pillow_doc},
 dzięki czemu nie będzie wymagane, aby użytkownik sam konwertował plików graficznych do odpowiedniego formatu.
-Biblioteka \textit{PILLOW} zostanie również wykorzystana do wycinania zdjęcia twarzy oraz standaryzacji
-i normalizacji już wykadrowanego zdjęcia.
+Biblioteka \textit{PILLOW} zostanie również wykorzystana do wycinania zdjęcia twarzy.
+
+\pagebreak
 
 
-\section{Klasyfikacja}
+\section{Klasyfikator SVM}
 
 Ostatnim krokiem w systemie jest dokonanie klasyfikacji wygenerowanego wektora cech,
 czyli określenie, do jakiej grupy należy wektor na podstawie próbek uczących.
@@ -221,23 +208,26 @@ Optymalizowanie modelu SVM polega na maksymalizacji marginesu pomiędzy płaszcz
 ponieważ na ogół nim większy margines, tym mniejszy jest błąd generalizacji~\cite{hastie2009elements}.
 Koncepcja klasyfikatora została zaprezentowana na rysunku~\ref{fig:svm}.
 
-
-\begin{figure}[]
+\begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{images/smv}
     \caption{
         Model maszyny wektorów nośnych.
-        Po lewej możliwe położenia hiperpłaszczyzny, po prawej zoptymalizowany model wraz z objaśnieniami.
+        Po lewej możliwe położenia hiperpłaszczyzny, po prawej zoptymalizowany model SVM.
     }
     \bibsource{\cite{raschka2017python}}
     \label{fig:svm}
 \end{figure}
 
+\pagebreak
+
+\subsection{Margines twardy}
+
 Jeśli dane uczące są liniowo separowalne, to można wybrać dwie równoległe hiperpłaszczyzny,
 które oddzielają dwie klasy danych, tak aby odległość między nimi była maksymalna.
 Obszar ograniczony przez te dwie hiperpłaszczyzny nazywany jest ``marginesem'',
 a hiperpłaszczyzna maksymalnego marginesu to hiperpłaszczyzna leżąca w połowie odległości między nimi.
-Problem optymalizacji algorytmu został przedstawiony równaniem~\ref{eq:hard_margin}.
+Problem optymalizacji algorytmu został przedstawiony równaniem~\ref{eq:hard_margin}~\cite{raschka2017python}.
 Lewą stroną tego równania jest odległość pomiędzy hiperpłaszczyzną ``pozytywną'' a ``negatywną'',
 zatem, w celu maksymalizacji marginesu, należy zmaksymalizować $\frac{2}{||w||}$ lub
 minimalizować odwrotność wyrażenia, czyli $\frac{1}{2}||w||^2$.
@@ -257,7 +247,7 @@ minimalizować odwrotność wyrażenia, czyli $\frac{1}{2}||w||^2$.
 \bigskip
 
 W przypadku danych liniowo separowalnych równanie~\ref{eq:hard_margin} musi
-spełniać warunki przedstawione w równaniu~\ref{eq:hard_margin_class}.
+spełniać warunki przedstawione w równaniu~\ref{eq:hard_margin_class}~\cite{raschka2017python}.
 Równania te oznaczają, że wszystkie negatywne próbki powinny wylądować po stronie
 negatywnej hiperpłaszczyzny, a wszystkie próbki pozytywne po stronie hiperpłaszczyzny pozytywnej.
 
@@ -277,24 +267,17 @@ negatywnej hiperpłaszczyzny, a wszystkie próbki pozytywne po stronie hiperpła
     \label{eq:hard_margin_class}
 \end{equation}
 
-\bigskip
+\pagebreak
+
+\subsection{Margines miękki}
 
 W przypadku, gdy dane nie są liniowo separowalne (rysunek~\ref{fig:sofm_margin}) wprowadza się dodatkową zmienną $\xi$.
 Motywacją wprowadzenia tej zmiennej jest potrzeba ``uelastycznienia'' liniowych
 ograniczeń (równanie~\ref{eq:hard_margin_class}) podczas analizowania nieliniowo rozdzielnych danych,
 co pozwala na uzyskanie zbieżności algorytmu uczącego w obecności nieprawidłowych klasyfikacji
 podczas stosowania odpowiedniej funkcji strat.
-
-\begin{figure}[]
-    \centering
-    \includegraphics[width=0.3\textwidth]{images/soft-margin.drawio}
-    \caption{ Przykład nieliniowo rozdzielnych próbek}
-    \customsource
-    \label{fig:sofm_margin}
-\end{figure}
-
 Po wprowadzeniu zmiennej $\xi$ do równiania~\ref{eq:hard_margin_class},
-równanie to przybiera postać opisaną wzorami~\ref{eq:soft_margin}.
+równanie to przybiera postać opisaną wzorami~\ref{eq:soft_margin}~\cite{raschka2017python}.
 
 \begin{equation}
     \begin{aligned}
@@ -304,12 +287,26 @@ równanie to przybiera postać opisaną wzorami~\ref{eq:soft_margin}.
         \\
         \text{dla } i&= 1\dots N \\
         \text{gdzie:} \\
-        \xi & \text{ - wartość przesunięcia granicy przynależności}
+        N & \text{  - liczba próbek} \\
+        \xi & \text{ - wartość przesunięcia granicy przynależności} \\
+        w_0 +w^{T}x^{(i)} & \text{  - odległość od granicy decyzyjności}
     \end{aligned}
     \label{eq:soft_margin}
 \end{equation}
 
-Nowym celem optymalizacji staje wtedy się równanie~\ref{eq:hard_svm_min_problem}.
+\bigskip
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{images/soft-margin.drawio}
+    \caption{ Przykład próbek nieliniowo rozdzielnych }
+    \customsource
+    \label{fig:sofm_margin}
+\end{figure}
+
+\pagebreak
+
+\noindent Nowym celem optymalizacji staje wtedy się równanie~\ref{eq:hard_svm_min_problem}~\cite{raschka2017python}.
 Za pomocą zmiennej $C$ kontroluje się wagę kary za niewłaściwą klasyfikację.
 Duża wartość parametru $C$ odpowiada wysokim karom za błędy, z kolei przy niskich wartościach
 kara nie będzie mocno wpływać na szerokość marginesu.
@@ -325,7 +322,11 @@ obciążeniem a wariancją~\cite{raschka2017python} (rysunek~\ref{fig:wplyw_c_na
     \label{eq:hard_svm_min_problem}
 \end{equation}
 
-\begin{figure}[]
+\bigskip
+\bigskip
+\bigskip
+
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{images/wplyw_c_na_svm}
     \caption{  Wpływ zmiennej C na szerokość marginesu }
@@ -333,7 +334,9 @@ obciążeniem a wariancją~\cite{raschka2017python} (rysunek~\ref{fig:wplyw_c_na
     \label{fig:wplyw_c_na_svm}
 \end{figure}
 
-\bigskip
+\pagebreak
+
+\subsection{Klasyfikacja nieliniowa}
 
 W przypadku, gdy dostarczone dane nie są separowalne za pomocą hiperpłaszczyzny
 w $N$ wymiarach (rysunek~\ref{fig:dane_nie_separowalne_liniowo})
@@ -354,23 +357,25 @@ Po wykonaniu mapowania oraz wyznaczeniu hiperpłaszczyzny dokonuje się rzutowan
     \label{eq:przykladowy_kernel}
 \end{equation}
 
-\begin{figure}[]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{images/dane_nie_separowalne_liniowo}
+    \includegraphics[width=0.3\textwidth]{images/dane_nie_separowalne_liniowo}
     \caption{  Zestaw danych nie separowalnych liniowo }
     \bibsource{\cite{raschka2017python}}
     \label{fig:dane_nie_separowalne_liniowo}
 \end{figure}
 
-\begin{figure}[]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{images/wyniki_mapowan}
+    \includegraphics[width=1\textwidth]{images/wyniki_mapowan}
     \caption{ Sposób wyznaczania nieliniowej granicy decyzyjności }
     \bibsource{\cite{raschka2017python}}
     \label{fig:wyniki_mapowan}
 \end{figure}
 
-\bigskip
+\pagebreak
+
+\subsection{Klasyfikacja wieloklasowa}
 
 Wszystkie opisane wyżej przypadki dotyczą problemów binarnych,
 czyli takich gdzie dostarczona próbka należy do jednej z dwóch klas.
@@ -382,7 +387,7 @@ lub jeden przeciwko wszystkim (ang. one vs all --- OvA).
 Obie te strategie zostały przedstawione na rysunku~\ref{fig:ovr} oraz~\ref{fig:ovo}.
 
 
-\begin{figure}[]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{images/ovr}
     \caption{ Strategia jeden przeciwko wszystkim }
@@ -390,7 +395,7 @@ Obie te strategie zostały przedstawione na rysunku~\ref{fig:ovr} oraz~\ref{fig:
     \label{fig:ovr}
 \end{figure}
 
-\begin{figure}[]
+\begin{figure}[PH]
     \centering
     \includegraphics[width=0.7\textwidth]{images/ovo}
     \caption{ Strategia jeden kontra jeden }
@@ -398,13 +403,14 @@ Obie te strategie zostały przedstawione na rysunku~\ref{fig:ovr} oraz~\ref{fig:
     \label{fig:ovo}
 \end{figure}
 
+\pagebreak
 
 
 \section{Obsługa systemu}
 
 Całość zaprojektowanego systemu ma być dostępna z przeglądarki internetowej.
 Aby sprostać temu wymaganiu, należy napisać usługę, która jest w stanie obsługiwać połączenia
-HTTP\footnote{Skrót z języka angielskiego od słów Hypertext Transfer Protocol}.
+HTTP (ang. Hypertext Transfer Protocol).
 Z powodu, że narzędzia do wykrywania twarzy, obróbki zdjęć oraz FaceNet są udostępnione w języku python,
 program zostanie również napisany w tym języku.
 Oprócz samej strony internetowej potrzebna jest również baza danych,

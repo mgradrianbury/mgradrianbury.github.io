@@ -4,6 +4,13 @@
 \usepackage{lipsum}
 \usepackage{siunitx}
 \include{styles/packages}
+
+\setcounter{biburlnumpenalty}{9000}
+% If you want to break on URL lower case letters
+\setcounter{biburllcpenalty}{9000}
+% If you want to break on URL UPPER CASE letters
+\setcounter{biburlucpenalty}{9000}
+
 \addbibresource{bibliografia.bib}
 
 \newcommand{\source}[1]{Źródło: \url{#1}}
@@ -20,6 +27,9 @@
 \begin{document}
 
     \include{rozdzialy/1.strona_glowna}
+    \pagenumbering{\null}
+    \afterpage{\null\newpage}
+    \pagenumbering{arabic}
 
     \tableofcontents
 
@@ -30,6 +40,7 @@
     \include{rozdzialy/6.implementacja_systemu}
     \include{rozdzialy/7.testowanie}
     \include{rozdzialy/8.podsumowanie}
+
 
     \printbibliography[
         heading=bibintoc,

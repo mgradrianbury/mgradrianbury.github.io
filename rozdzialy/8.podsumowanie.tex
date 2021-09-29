@@ -1,32 +1,30 @@
 \chapter*{Podsumowanie}
 \addcontentsline{toc}{chapter}{Podsumowanie}
 
-Architektura FaceNet znakomicie sprawdza się do zadań związanych z rozpoznawaniem twarzy.
+Użytkownik, dzięki temu, że komunikacja z aplikacją odbywa się przez protokół HTTP,
+może połączyć się z serwerem, z dowolnego urządzenia mającego dostęp do internetu oraz do przeglądarki
+internetowej, w celu wysłania zdjęcia na serwer.
+Jeżeli to urządzenie posiada również dostęp do kamery, to jest
+możliwość bezpośredniego wysłania zrobionego zdjęcia od razu do systemu.
+W odpowiedzi na wysłane zdjęcie zostanie zwrócony komunikat, zawierający kim jest osoba przedstawiona na zdjęciu,
+pod warunkiem, że ta osoba została wcześniej wgrana do systemu.
 
-Wektor cech, które jest generowane przez sieć FaceNet
-
-Policzona maksymalna odległość pomiędzy zdjęciami, która może wystąpić,
-aby porównywane zdjęcia twarzy były uznane za podobne to \num{10.2}.
-Przy takiej długości została osiągnięta maksymalna trafność samego walidatora.
-Pomyłka walidatora będzie oznaczać, że osoba, która w rzeczywistości nie znajduje się w obecnej bazie zdjęć,
-zostanie zakwalifikowana do następnego etapu i zostanie dokonana kwalifikacja (wynik fałszywie pozytywny).
-W przypadku, gdy system zostałby użyty w miejscu, gdzie taki błąd jest niedopuszczalny, należy zmniejszyć tę odległość.
-Spowoduje to, że ogólna trafność walidatora spadnie, natomiast częstotliwość występowania wyników fałszywie
-pozytywnych zostanie \textbf{najprawdopodobniej} ograniczona.
-
-Przygotowany panel administratora jest bardzo dużym ułatwieniem,
-które pozwala na łatwe zarządzanie zdjęciami, które znajdują się w systemie.
-Podgląd aktualnych lub dodawania kolejnych zdjęć ogranicza się tylko do paru kliknięć.
-Niestety manualne wysyłanie bardzo dużej liczby zdjęć za pomocą panelu będzie wymagać dużo czasu,
+Dużym ułatwieniem w zarządzaniu bazą zdjęć jest przygotowany panel administratora,
+który pozwala na łatwe zarządzanie zdjęciami, które znajdują się w systemie.
+Podgląd aktualnych lub dodawanie kolejnych zdjęć ogranicza się tylko do paru kliknięć.
+Niestety ręczne wysyłanie bardzo dużej liczby zdjęć za pomocą panelu może wymagać sporo czasu,
 dlatego w takim przypadku lepiej jest przygotować skrypt, który zaimportuje bezpośrednio zdjęcia z dysku do systemu.
 
-Udostępniona strona internetowa pozwala na komunikowanie się z serwerem
-z każdego urządzenia z internetem z zainstalowaną przeglądarką internetową.
-Jeżeli urządzenia posiada aparat to jest nawet możliwość bezpośredniego wysłania zdjęcia zaraz po jego wykonaniu.
-Takie rozwiązanie daje dużą swobodę w korzystaniu.
+Próg, po którego przekroczeniu, walidator oceniający podobieństwo uzna,
+że dane zdjęcia nie są do siebie podobne został wyliczony na \num{10.2}.
+Przy tej wartości, na badanym zbiorze, została osiągnięta maksymalna skuteczność wynosząca \num{92.3}\%.
+W zależności od tego, gdzie napisany system zostałby użyty, wartość tą można zmodyfikować.
+W przypadku, gdy system zostałby użyty w miejscu, gdzie błędy fałszywie pozytywne są niedopuszczalne,
+wartość ta powinna zostać zmniejszona.
+Spowoduje to, że ogólna skuteczność walidatora spadnie, natomiast częstotliwość występowania wyników fałszywie
+pozytywnych zostanie \textbf{najprawdopodobniej} ograniczona.
 
-
-Kolejnym tematem, który nie został poruszony, jest wydajność systemu przy bardzo dużej liczbie zdjęć.
-Podczas testów w systemie wgranych było 5000 zdjęć i przy takiej liczbie system odpowiadał szybko (poniżej 1 sekundy),
-natomiast nie zostało sprawdzone, co się stanie, gdy liczba ta wzrośnie 10 lub 100-krotnie.
-
+Wymagania, jakie zostały podstawione systemowi w rozdziale pierwszym, zostały w pełni zrealizowane.
+Wyniki testów pokazały, że aplikacja poprawnie rozpoznaje zdjęcia niezawierające twarzy,
+jest w stanie również ocenić z wysokim prawdopodobieństwem czy osoba rozpoznana na zdjęciu jest znana systemowi
+oraz zwrócić informację na temat osoby przesłanej do systemu po jej rozpoznaiu

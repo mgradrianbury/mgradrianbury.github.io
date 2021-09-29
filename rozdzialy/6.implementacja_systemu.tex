@@ -8,7 +8,7 @@ W tym celu została wykorzystana wcześniej wspomniana biblioteka PILLOW,
 która ma za zadanie wykonać przekształcenie otrzymanego pliku do tablicy pikseli.
 Otrzymana tablica następnie trafia do sieci MTCNN, która zwraca informacje na temat wykrytych twarzy,
 po czym następuje wycinanie fragmentu zdjęcia przedstawiającego samą twarz.
-Jeżeli nie zostaną znalezione żadne twarze, funkcja rzuci odpowiednim błędem.
+Jeżeli nie zostaną znalezione żadne twarze, zostanie wygenerowany wyjątek.
 
 
 \section{Generowanie wektora cech}
@@ -16,7 +16,7 @@ Jeżeli nie zostaną znalezione żadne twarze, funkcja rzuci odpowiednim błęde
 Po wykadrowaniu twarzy, kolejnym krokiem jest wygenerowanie wektora cech.
 Odpowiednio przygotowana wcześniej tablica pikseli jest standaryzowana,
 ponieważ wymaga tego używana implementacja architektury FaceNet, a następnie wykonywana jest predykcja.
-Jako wynik działa funkcji zwracany jest opisany wcześniej wektor cech.
+Jako wynik działa funkcji zwracany jest 128 wymiarowy wektor cech.
 
 
 \pagebreak
@@ -24,12 +24,12 @@ Jako wynik działa funkcji zwracany jest opisany wcześniej wektor cech.
 
 \section{Ocena podobieństwa twarzy}
 
-FaceNet został nauczony tak, aby mapować zdjęcia twarzy do zwartej przestrzeni euklidesowej,
-w której odległości pomiędzy punktami bezpośrednio odpowiadają mierze podobieństwa twarzy.
+    FaceNet został nauczony tak, aby mapować zdjęcia twarzy do n-wymiarowych wektorów,
+    gdzie odległości mierzone za pomocą metryki euklidesowej odpowiadają mierze podobieństwa twarzy.
 Oznacza to, że jeżeli odległość pomiędzy dwoma punktami w przestrzeni
 jest względnie mała, to jest wysoce prawdopodobne, że zdjęcia twarzy przedstawiają tę samą osobę.
 Mając to na uwadze, można znaleźć odległość, poniżej której zostałoby uznane, że zdjęcia
-przedstawiają tę samą osobę (rysunek~\ref{fig:szukanie_progu}).
+dotyczą tej samej osoby (rysunek~\ref{fig:szukanie_progu}).
 
 \begin{figure}[H]
     \centering
@@ -44,8 +44,8 @@ przedstawiają tę samą osobę (rysunek~\ref{fig:szukanie_progu}).
 
 \subsection{Poszukiwanie odległości}
 
-Do poszukiwania wartości progu zostało wykorzystanych około \num{5000} losowo wybranych zdjęć,
-przedstawiających około \num{500} różnych osób, po około \num{10} zdjęć na osobę,
+Do poszukiwania wartości progu zostało wykorzystanych \num{5000} losowo wybranych zdjęć,
+przedstawiających \num{500} różnych osób, po \num{10} zdjęć na osobę,
 z bazy CelebA~\cite{liu2015faceattributes}.
 Na każdym zdjęciu zostało następnie wykonane kadrowanie twarzy oraz generowanie wektora cech.
 Ostatnim elementem było zbadanie odległości pomiędzy wszystkimi wektorami tych samych oraz różnych osób.
@@ -119,17 +119,29 @@ Z histogramów (rysunek~\ref{fig:wykres_najmniejszych_odleglosc_wspolny}) wykona
 że nie istnieje taka wartość, która będzie w stanie odseparować przedstawione zbiory.
 Konsekwencją tego jest, że dla dowolnego ``x'' będą istnieć przypadki, dla których
 zdjęcia błędnie zostaną uznane, że przedstawiają tę samą osobę.
-Należy zatem znaleźć taką wartość ``x'', dla której funkcja oceniająca, czy wektory
-dotyczą tej samej osoby, będzie miała największą skuteczność.
-Przedział, w jakim należy spodziewać się największej trafności,
+Należy zatem znaleźć taką wartość ``x'', dla której walidator, czyli funkcja oceniająca,
+    czy podane wektory dotyczą tej samej osoby będzie miał największą skuteczność.
+Przedział, w jakim należy spodziewać się największej skuteczności,
 powinien (jak wynika z rysunku~\ref{fig:wykres_najmniejszych_odleglosc_wspolny})
 znaleźć się w przedziale od \num{8} do \num{12}, ponieważ na tym odcinku
 oba histogramy pokrywają się na największym obszarze.
 
 \subsection{Odległość o największej skuteczności}
 
-W celu sprawdzania dla jakiego ``x'' ocena podobieństwa osiągnie maksymalną wartość,
+W celu sprawdzania dla jakiego ``x'' zostanie zmaksymalizowana liczba prawidłowo sklasyfikowanych twarzy,
 wspomniany wcześniej zbiór zdjęć, został podzielony na dwie grupy.
+%\begin{equation}
+%    \begin{aligned}
+%        \max t = \sum_{0}^{5000} f(A,B) \\
+%        \text{dla } \\
+%        x = 8\dots12 \text{ co } 0.1 \\
+%        f(a,b) \begin{cases}
+%            1 \text{ jeżeli a oraz b to te same osoby oraz }  d < x\\
+%            0 \text{ dla } d \geq x
+%        \end{cases}
+%    \end{aligned}
+%
+%\end{equation}
 Do pierwszej grupy trafiły zdjęcia, które zasiliły system i stanowiły bazę
 w weryfikowaniu, czy nowe zdjęcie, które zostanie dostarczone,
 zostanie uznane za podobne do jakiegoś zdjęcia twarzy, które znajduje się już w systemie.
@@ -147,7 +159,8 @@ Dokładny podział zdjęć został przedstawiony na rysunku~\ref{fig:podzial_zdj
     \label{fig:podzial_zdjec}
 \end{figure}
 
-Po podzieleniu zdjęć na grupy kolejnym krokiem jest zbadanie trafności oceny podobieństwa dla poszczególnych
+Po podzieleniu zdjęć na grupy kolejnym krokiem jest zbadanie skuteczności
+oceny podobieństwa dla poszczególnych
 progów z zakresu od \num{8} do \num{12}.
 Zakres ten będzie badany z dokładnością do \num{0.1}.
 Kroki, jakie zostały wykonane w badaniu, są następujące:
@@ -169,23 +182,26 @@ zawsze zwrócić \textit{True}, ponieważ \textbf{każda}
 osoba przedstawiona na zdjęciu z grupy ``Zdjęcia znanych osób'' znajduje się w systemie.
 Niestety z przeprowadzonych wcześniej badań (rysunek~\ref{fig:wykres_najmniejszych_odleglosc_wspolny}) wynika,
 że taki scenariusz nie jest możliwy i z tego powodu należy znaleźć taką wartość parametru ``x'',
-dla którego trafność walidatora oceniającego podobieństwo będzie maksymalne.
+dla którego skuteczność walidatora oceniającego podobieństwo będzie maksymalne.
 
 Wyniki opisanego wcześniej badania zostały przedstawione na rysunku~\ref{fig:tranosc_walidatora_per_prog}.
-Na jego podstawie można zauważyć, że trafność walidatora
+Na jego podstawie można zauważyć, że skuteczność walidatora
 rośnie wraz ze wzrostem wartości progu aż do momentu osiągnięcia
 przez ``x'' wartości \num{10.2} po czym nastepuje spadek.
-Dla wartości \textbf{10.2} trafność funkcji została oceniona na poziomie \textbf{92.3\%}.
-Obliczony wartość oznacza, że jeżeli odległość pomiędzy dwoma wektorami, które leżą najbliżej siebie,
+Dla wartości \textbf{10.2} skuteczność funkcji została oceniona na poziomie \textbf{92.3\%}.
+Obliczona wartość oznacza, że jeżeli odległość pomiędzy dwoma wektorami, które leżą najbliżej siebie,
 jest mniejsza niż \num{10.2} to system uzna, że owe wektory dotyczą tej samej osoby,
 przez co proces będzie kontynuowany.
-W przeciwnym wypadku zostanie rzucony błąd z informacją, że osoba przedstawiona na zdjęciu,
+W przeciwnym wypadku zostanie wygenerowany błąd z informacją, że osoba przedstawiona na zdjęciu,
 która podlega weryfikacji, nie jest znana systemowi.
 
 \begin{figure}[]
     \centering
     \includegraphics[width=1\textwidth]{images/trafnosc_walidator_a_prog}
-    \caption{ Trafność walidatora w zależności od wartości progu (parametru ``x'') }
+    \caption{
+        Skuteczność walidatora (funkcji oceniającej, czy podane wektory dotyczą tej
+        samej osoby) w zależności od wartości progu (parametru ``x'')
+    }
     \customsource
     \label{fig:tranosc_walidatora_per_prog}
 \end{figure}
@@ -203,9 +219,11 @@ Jest to bardzo istotna informacja, ponieważ w przeciwnym wypadku klasyfikator
 mógłby dokonać klasyfikacji pomimo tego, że dana klasa (w tym wypadku osoba) nie istnieje w systemie,
 co oznaczałoby zawsze błędną klasyfikację.
 
-Do wykonywania klasyfikacji został wykorzystany klasyfikator SVM z liniowym jądrem z parametrem $C$ równym $1.0$.
-Jego trafność na opisanym wcześniej zbiorze (rysunek~\ref{fig:podzial_zdjec}) wyniosła \textbf{96.1\%}.
-Z powodu tak wysokiej trafności nie były testowane inne klasyfikatory.
+Do wykonywania klasyfikacji został wykorzystany klasyfikator SVM z liniowym jądrem,
+z parametrem $C$ równym $1.0$ (równanie~\ref{eq:hard_svm_min_problem}) oraz
+strategią jeden na jednego (rysunek~\ref{fig:ovo}).
+Jego skuteczność na opisanym wcześniej zbiorze (rysunek~\ref{fig:podzial_zdjec}) wyniosła \textbf{96.1\%}.
+Z powodu tak wysokiej skuteczności nie były testowane inne klasyfikatory.
 Implementacja klasyfikatora SVM została zaczerpnięta z biblioteki \textit{sklearn}~\cite{sklearn_api}.
 
 
@@ -219,7 +237,7 @@ Wygląd strony zostaw przedstawiony na zdjęciu~\ref{fig:ja}.
 
 \begin{figure}[H]
     \centering
-    \includegraphicswithborder[width=1\textwidth]{images/wyglad_frontowa_aplikacji}
+    \includegraphicswithborder[width=0.9\textwidth]{images/wyglad_frontowa_aplikacji}
     \caption{Wygląd strony internetowej po wybraniu zdjęcia z dysku i uzyskaniu odpowiedzi z serwera}
     \customsource
     \label{fig:ja}

@@ -1,30 +1,34 @@
 \chapter{Cel i zakres pracy}
 
-Rozpoznawanie twarzy to jedna z dziedzin informatyki, która polega na zdolności
-do rozpoznawania i identyfikacji tożsamości osoby na podstawie określonych wzorców~\cite{william2019face}.
+Rozpoznawanie twarzy to zagadnienie z dziedziny klasyfikacji,
+które polega na rozpoznawaniu i identyfikacji
+tożsamości osoby na podstawie określonych wzorców~\cite{william2019face}.
 Innymi słowy, rozpoznawanie twarzy to wykrycie obszaru na fotografii,
 w którym znajduje się twarz oraz weryfikacja tożsamości.
 
 Problem identyfikacji tożsamości jest ogólnie znany jako problem klasyfikacji,
-czyli określenie etykiety dostarczonego zdjęcia twarzy na podstawie aktualnego zbioru zdjęć.
+czyli określenie etykiety dostarczonego zdjęcia twarzy na podstawie aktualnego \linebreak zbioru zdjęć.
 Problem może być postrzegany jako zapytanie systemu ``kim jest osoba przedstawiona na zdjęciu?''.
 Przykładem procesu, gdzie jest stosowana identyfikacja, to proces wyszukiwana tożsamości.
 Po dostarczeniu pliku system przeszukuje bazę dostępnych zdjęć w celu znalezienia pasującego zdjęcia
 i jeżeli zdjęcie zostanie dopasowane, to system zwróci informację o tożsamości.
 
 Weryfikacja to proces sprawdzający prawdziwość, przydatność lub prawidłowość czegoś~\cite{sjp_pwn_1996}.
-W przypadku weryfikacji tożsamości na podstawie zdjęcia twarzy, proces ten będzie polegał na sprawdzeniu,
-czy deklarowana tożsamość zgadza się z przypisanym do niej zdjęciem twarzy, jeżeli tak,
+Oznacza to, że weryfikacja na podstawie zdjęcia twarzy będzie oznaczać proces polegający na sprawdzeniu,
+czy deklarowana tożsamość zgadza się z przypisanym do deklaracji zdjęciem twarzy i jeżeli tak,
 to akceptowanie, jeżeli nie to odrzucanie oświadczenia.
-Zapytanie, jakie zadaje się wtedy systemowi to ``czy to zdjęcie przedstawia tę osobę?''.
+Zapytanie, jakie zadaje się wtedy systemowi to
+``czy podane oświadczenie zgadza się ze zdjęciem zapisanej w systemie osoby?''.
 Przykładem weryfikacji tożsamości za pomocą twarzy jest odblokowywanie smartfonów z wykorzystaniem kamery.
 Aplikacja w smartfonie sprawdza wtedy, czy zdjęcie osoby z kamery zgadza się ze zdjęciem zapisanym w pamięci.
 Jeżeli zdjęcia, zapisane w pamięci oraz dostarczone z kamery, zgadzają się, to telefon zostanie odblokowany.
 
+\pagebreak
+
 System, który implementuje weryfikację lub identyfikację na podstawie twarzy,
 może znaleźć zastosowanie do wykonywania automatycznego oznaczania osób na zdjęciach~\cite{facebook-aut-tag},
 przeszukiwania stron internetowych w celu znalezienie zdjęcia przedstawiającego daną osobę~\cite{pimeyes}
-czy zautomatyzowanego grupowania zdjęć na podstawie twarzy na ich się znajdujących~\cite{google-photos_groupby}.
+czy zautomatyzowanego grupowania zdjęć na podstawie twarzy na nich się znajdujących~\cite{google-photos_groupby}.
 
 Celem pracy dyplomowej jest utworzenie systemu, którego zadaniem będzie rozpoznanie osoby przedstawionej na zdjęciu.
 Zakres prac obejmuje implementację strony internetowej,

@@ -1,3 +1,6 @@
+\addtocontents{toc}{\protect\newpage}
+
+
 \chapter{Testowanie systemu}
 
 Testowanie napisanej aplikacji będzie polegać na ręcznym wprowadzeniu wybranych zdjęć do systemu.
@@ -6,7 +9,7 @@ Wybrane zdjęcia (rysunek~\ref{fig:zdjeciadotestow}) zostały podzielone na dwie
 
 \begin{itemize}
     \item zdjęcia, które trafią do systemu jako wzorzec,
-    \item zdjęcia, które zostaną wykorzystane w celu zbadania zachowania oraz trafności
+    \item zdjęcia, które zostaną wykorzystane w celu zbadania zachowania oraz poprawności
     komunikatów zwracanych przez system.
 \end{itemize}
 
@@ -60,6 +63,8 @@ Komunikat o braku twarzy został zwrócony, co oznacza, że system zachował si�
     \label{fig:wprowadzona_natura}
 \end{figure}
 
+\pagebreak
+
 
 \section{Zdjęcie osoby nieznanej systemowi}
 
@@ -71,13 +76,15 @@ Wyniki testu zostały przedstawione na rysunku~\ref{fig:rezultat_nieznane}.
 Dla każdego ze zdjęć został zwrócony komunikat z informacją, że nie rozpoznano osoby na zdjęciu.
 Oznacza to, że system zachował się poprawnie i test można uznać za zaliczony.
 
-\begin{figure}[]
+\begin{figure}[H]
     \centering
     \includegraphicswithborder{images/rezultat_nieznane}
     \caption{ Zachowanie systemu po wybraniu zdjęć nieznanych systemowi }
     \customsource
     \label{fig:rezultat_nieznane}
 \end{figure}
+
+\pagebreak
 
 
 \section{Zdjęcie osoby znanej systemowi}
@@ -98,14 +105,12 @@ a zdjęcie, dla którego system zwrócił błędny komunikat, przedstawia tę sa
 Dodatkowo zdjęcie twarzy zrobione jest z inne profilu,
 częściowo zasłoniętego przez włosy (rysunek~\ref{fig:porownanie_etykiety_1}).
 
-\pagebreak
-
 \begin{figure}[H]
     \centering
-    \includegraphicswithborder{images/rezulat_znane}
+    \includegraphicswithborder[width=0.6\textwidth]{images/rezulat_znane}
     \caption{
-        Zwrócone komunikaty dla wybranych zdjęć.
-        Obok komunikatu została przedstawiona etykieta, którą powinien zwrócić system.
+        Zwrócone komunikaty przez system dla wybranych zdjęć.
+        Numer obok komunikatu przedstawia ID osoby na zdjęciu w systemie.
     }
     \customsource
     \label{fig:rezultat_znane}
@@ -114,9 +119,43 @@ częściowo zasłoniętego przez włosy (rysunek~\ref{fig:porownanie_etykiety_1}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{images/porownanie_etykiety_1}
-    \caption{ Porównanie zdjęcia wgranego do systemu ze zdjęciem źle zakwalifikowanym przez system. }
+    \includegraphics[width=0.3\textwidth]{images/porownanie_etykiety_1}
+    \caption{
+        Porównanie zdjęcia wgranego do systemu (po lewej) ze zdjęciem
+        źle zakwalifikowanym przez system (po prawej).
+    }
     \customsource
     \label{fig:porownanie_etykiety_1}
 \end{figure}
 
+
+\begin{small }
+\section{\fontsize{17}{15}\selectfont Skuteczność algorytmu rozpoznawania twarzy}
+\end{small}
+
+Przedstawione dotychczas testy zostały wykonane na bardzo małym zbiorze twarzy.
+Do aplikacji zostało wgranych tylko 6 zdjęć przedstawiających twarze 3 osób.
+Wykonanie statystyk na tak małym zbiorze jest niereprezentatywne,
+dlatego tym razem został przygotowany zestaw zdjęć składający się z 2~000 różnych osób, łącznie 10~000 zdjęć twarzy.
+Do samej aplikacji, z przygotowanego zbioru, zostało wgranych 5~000 zdjęć twarzy,
+przedstawiających 1~000 różnych osób~(po 5 zdjęć na jedną osobę).
+Pozostałe 5~000 zdjęć zostało wykorzystanych do testowania zwracanych komunikatów przez aplikację.
+Wyniki z testów zostały przedstawione w tabeli~\ref{tab:app_stats}.
+Z przeprowadzonych testów wynika, że skuteczność aplikacji wynosi 85,94\%,
+a najbardziej newralgicznym punktem w całym zaprojektowanym systemie jest walidator,
+który wygenerował aż 639 z 703 wszystkich błędnych komunikatów.
+
+
+\begin{table}[H]
+    \centering
+    \caption{Wyniki przeprowadzonych testów}
+    \label{tab:app_stats}
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Liczba wykonanych testów}              & 5 000 \\ \hline
+        \textbf{Suma błędnych komunikatów}             & 703   \\ \hline
+        Liczba zdjęć, na których nie znaleziono twarzy & 12    \\ \hline
+        Liczba błędnych komunikatów walidatora         & 639   \\ \hline
+        Liczba błędnych komunikatów klasyfikatora      & 52    \\ \hline
+    \end{tabular}
+\end{table}

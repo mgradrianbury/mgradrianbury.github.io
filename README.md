@@ -1,4 +1,4 @@
-# Praca magisterksa
+# Praca magisterska
 
 Tytuł: Zastosowanie głębokiej sieci neuronowej o architekturze FaceNet do rozpoznawania twarzy <br>
 Promotor: dr hab. inż. Tomasz Hachaj <br>
